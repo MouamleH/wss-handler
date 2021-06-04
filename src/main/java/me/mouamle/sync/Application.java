@@ -1,6 +1,5 @@
 package me.mouamle.sync;
 
-import me.mouamle.sync.packet.Registry;
 import me.mouamle.sync.packet.handler.Handler;
 import org.java_websocket.WebSocket;
 
@@ -39,7 +38,7 @@ public class Application {
     }
 
     public static void main(String[] args) {
-        Registry.register(new Handler<Payload>() {
+        Registry.register(new Handler<Payload, Payload>() {
 
             @Override
             public void handle(WebSocket socket, Payload payload) {
@@ -53,6 +52,11 @@ public class Application {
 
             @Override
             public Class<Payload> getPayloadType() {
+                return Payload.class;
+            }
+
+            @Override
+            public Class<Payload> getResponseType() {
                 return Payload.class;
             }
 

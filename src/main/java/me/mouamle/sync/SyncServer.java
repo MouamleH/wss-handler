@@ -5,7 +5,6 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 import me.mouamle.sync.event.*;
 import me.mouamle.sync.packet.Packet;
-import me.mouamle.sync.packet.Registry;
 import me.mouamle.sync.packet.handler.Handler;
 import org.greenrobot.eventbus.EventBus;
 import org.hibernate.validator.internal.engine.path.PathImpl;
@@ -19,6 +18,8 @@ import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import java.net.InetSocketAddress;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -29,11 +30,21 @@ public class SyncServer extends WebSocketServer {
 
     private final Gson gson;
     private final Validator validator;
+    private final EventBus eventBus;
 
     public SyncServer(InetSocketAddress address) {
         super(address);
         this.gson = new GsonBuilder().serializeNulls().create();
         this.validator = Validation.buildDefaultValidatorFactory().getValidator();
+        eventBus = EventBus.builder()
+                .logNoSubscriberMessages(false)
+                .logSubscriberExceptions(true)
+                .build();
+    }
+
+    @Override
+    public void onMessage(WebSocket conn, ByteBuffer message) {
+        this.onMessage(conn, new String(message.array(), StandardCharsets.US_ASCII));
     }
 
     @Override
@@ -77,7 +88,7 @@ public class SyncServer extends WebSocketServer {
                 });
 
                 final List<String> messages = payloadViolations.stream()
-                        .map(violation -> String.format("%s %s",
+                        .map(violation -> String.format("(%s) %s",
                                 ((PathImpl) violation.getPropertyPath()).getLeafNode().getName(),
                                 violation.getMessage()
                         ))
@@ -117,7 +128,7 @@ public class SyncServer extends WebSocketServer {
     }
 
     private void publishEvent(Event event) {
-        EventBus.getDefault().post(event);
+        eventBus.post(event);
     }
 
 }

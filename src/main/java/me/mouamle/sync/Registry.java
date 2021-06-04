@@ -1,4 +1,4 @@
-package me.mouamle.sync.packet;
+package me.mouamle.sync;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -13,48 +13,50 @@ public class Registry {
     private static final Map<Class, Handler> packetHandlers = new HashMap<>();
     private static final Gson gson = new GsonBuilder().setPrettyPrinting().serializeNulls().create();
 
-    /**
-     * @return s
-     */
     @SuppressWarnings("unchecked")
     public static String exportJson() {
-        List<Object> payloads = new ArrayList<>();
-        payloadTypes.forEach((type, clazz) -> {
-            final Map<String, Object> payload = new HashMap<>();
-            payload.put("type", type);
-            payload.put("payload", gson.fromJson("{}", clazz));
-            payloads.add(payload);
-        });
+        List<Object> packets = new ArrayList<>();
+        for (Handler handler : packetHandlers.values()) {
+            final Map<String, Object> packet = new HashMap<>();
+            packet.put("type", handler.getPacketName());
+            packet.put("request_payload", gson.fromJson("{}", handler.getPayloadType()));
+            packet.put("response_payload", gson.fromJson("{}", handler.getResponseType()));
+            packets.add(packet);
+        }
         final Map<String, Object> json = new HashMap<>();
-        json.put("packets", payloads);
+        json.put("packets", packets);
         return gson.toJson(json);
     }
 
-
+    /**
+     * Registers the handler and its payload type
+     */
     public static void register(Handler handler) {
         registerPayload(handler.getPacketName(), handler.getPayloadType());
         registerHandler(handler);
     }
 
-
-    public static void register(String packetType, Handler handler) {
-        registerPayload(packetType, handler.getPayloadType());
+    /**
+     * Registers a handler with a custom name, ignores {@link Handler#getPacketName()}
+     */
+    public static void register(String packetName, Handler handler) {
+        registerPayload(packetName, handler.getPayloadType());
         registerHandler(handler);
     }
 
-    public static void registerPayload(String packetType, Class payloadClass) {
+    private static void registerPayload(String packetType, Class payloadClass) {
         payloadTypes.put(packetType, payloadClass);
     }
 
-    public static void registerHandler(Handler handler) {
+    private static void registerHandler(Handler handler) {
         packetHandlers.put(handler.getPayloadType(), handler);
     }
 
-    public static Optional<Class> getPayloadClass(String packetType) {
+    static Optional<Class> getPayloadClass(String packetType) {
         return Optional.ofNullable(payloadTypes.get(packetType));
     }
 
-    public static Optional<Handler> getHandler(Class payloadType) {
+    static Optional<Handler> getHandler(Class payloadType) {
         return Optional.ofNullable(packetHandlers.get(payloadType));
     }
 
