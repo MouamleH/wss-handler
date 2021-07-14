@@ -1,4 +1,6 @@
 # WSS Handler
+[![](https://jitpack.io/v/MouamleH/wss-handler.svg)](https://jitpack.io/#MouamleH/wss-handler)
+
 A library to make working with websockets in java easier.
 <br>
 Built on top of [TooTallNate's Java-WebSocket](https://github.com/TooTallNate/Java-WebSocket)
