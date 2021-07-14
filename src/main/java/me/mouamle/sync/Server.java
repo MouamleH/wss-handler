@@ -25,14 +25,14 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class SyncServer extends WebSocketServer {
-    private static final Logger logger = LoggerFactory.getLogger(SyncServer.class);
+public class Server extends WebSocketServer {
+    private static final Logger logger = LoggerFactory.getLogger(Server.class);
 
     private final Gson gson;
     private final Validator validator;
     private final EventBus eventBus;
 
-    public SyncServer(InetSocketAddress address) {
+    public Server(InetSocketAddress address) {
         super(address);
         this.gson = new GsonBuilder().serializeNulls().create();
         this.validator = Validation.buildDefaultValidatorFactory().getValidator();
