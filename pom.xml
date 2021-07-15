@@ -6,7 +6,7 @@
 
     <groupId>me.mouamle</groupId>
     <artifactId>wss-handler</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
 
     <name>wss handler</name>
     <description>A library to make working with websockets in java easier.</description>

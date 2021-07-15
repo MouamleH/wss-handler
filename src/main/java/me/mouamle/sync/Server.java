@@ -36,10 +36,17 @@ public class Server extends WebSocketServer {
         super(address);
         this.gson = new GsonBuilder().serializeNulls().create();
         this.validator = Validation.buildDefaultValidatorFactory().getValidator();
-        eventBus = EventBus.builder()
+        this.eventBus = EventBus.builder()
                 .logNoSubscriberMessages(false)
                 .logSubscriberExceptions(true)
                 .build();
+    }
+
+    public Server(InetSocketAddress address, EventBus eventBus) {
+        super(address);
+        this.gson = new GsonBuilder().serializeNulls().create();
+        this.validator = Validation.buildDefaultValidatorFactory().getValidator();
+        this.eventBus = eventBus;
     }
 
     @Override
@@ -125,6 +132,10 @@ public class Server extends WebSocketServer {
     public void onStart() {
         logger.info("Sync Server started");
         publishEvent(new OnStart());
+    }
+
+    public EventBus getEventBus() {
+        return eventBus;
     }
 
     private void publishEvent(Event event) {
